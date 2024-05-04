@@ -1,0 +1,87 @@
+
+// MARK: A
+type A {
+
+  public var name: String
+  public var speed: Int
+
+  public memberwise init
+
+  public fun print() {
+    print(name, terminator: " is running at a speed of ")
+    print(speed, terminator: "km/h\n")
+  }
+
+  public fun faster() -> Int{
+    let {
+        print("> let")
+        let new_speed = speed + 10
+        return (self: A(name: name.copy(), speed: new_speed), new_speed)
+    }
+    sink {
+        print("> sink")
+        let new_speed = speed + 10
+        &speed = new_speed
+        return (self: A(name: name, speed: speed), new_speed)
+    }
+    inout {
+        print("> inout")
+        let new_speed = speed + 10
+        &speed = new_speed
+        return new_speed
+    }
+
+  }
+  // Functional variants of a method bundle return instances of `{self: Self, Output}`, unless the
+  // declared return type of the bundle is `Void`, in which case they return instances of `Output`.
+  // In-place variants always return instances of `Output`.
+
+//   public fun foo() {
+//     let   { A(name: "- let") }
+//     sink  { A(name: "- sink") }
+//     inout { &name = "- inout" }
+//   }
+
+//   public fun bar() -> Int {
+//     let   { 
+//         print("> using let")
+//         return (self: A(name: "let"), 1)
+//     }
+//     sink  { 
+//         print("> using sink")
+//         &name = "sink"
+//         return (self: A(name: "sink"), 1)
+        
+//         // return (self: A(name: "sink"), 1)  // I still don't completely understand why `sink` needs to return
+//                                            // a new object
+//     }
+//     inout { 
+//         print("> using inout")
+//         &name = "inout"
+//         return 1 
+//     }
+//   }
+}
+
+public conformance A: Deinitializable {
+    public fun deinit() sink {
+        print("+ End of life of ", terminator: name)
+        print("")
+    }
+}
+
+
+fun example_1() {
+    var a = A(name: "Train_1", speed: 50)
+
+    a.faster()
+    a.print()
+    // print(b.name)
+    print("-------")
+}
+
+
+public fun main() {
+    example_1()
+
+}

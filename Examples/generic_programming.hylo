@@ -1,0 +1,11 @@
+// Returns the number of occurrences of 'a' in 'items'
+fun occurrences<T: Collection where T.Element: Equatable>(of a: T.Element, in items) -> Int {
+    items.reduce(into: 0, fun (count, e) {
+        if a == e { &count += 1 }
+    })
+}
+
+fun main() {
+    let fruits = ["durian", "pear", "mango", "pear"]
+    print(occurrences(of: "pear", in: fruits))
+}

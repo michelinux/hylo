@@ -1,0 +1,139 @@
+// MARK: Time
+type Time {
+    var hh: Int
+    var mm: Int
+
+    public memberwise init
+
+    public fun print()  {
+        // let colon = ":"
+        // let empty = ""
+        print(hh, terminator: ":")
+        print(mm, terminator: "")
+    }
+
+    public init() {
+        &hh = 0
+        &mm = 0
+    }
+}
+
+public conformance Time: Deinitializable {}
+
+public conformance Time: Equatable {
+    public fun infix== (_ other: Self) -> Bool {
+        // let is_equal: Bool = self.hh == self.hh && self.mm == self.mm
+        // Bool(value: self.hh == self.hh && self.mm == self.mm)
+        self.hh == self.hh && self.mm == self.mm
+    }
+
+    public fun infix!= (_ other: Self) -> Bool {
+        self.hh != self.hh || self.mm != self.mm
+    }
+}
+
+public conformance Time: AdditiveArithmetic {
+ 
+    public fun infix+ (_ other: Self) -> Self {
+        let totalMinutes = self.mm + other.mm
+        let extraHour = totalMinutes / 60
+
+        let computed_mm = totalMinutes % 60
+        let computed_hh = (self.hh + other.hh + extraHour) % 24
+        
+        return Time(hh: computed_hh, mm: computed_mm)
+    }
+
+    public fun infix+= (_ other: Self) inout {
+        &self.mm += other.mm
+        &self.hh += self.mm / 60
+        &self.mm %= 60
+        &self.hh %= 24
+    }
+ 
+    public fun infix- (_ other: Self) -> Self {
+        
+        var totalMinutes = (self.hh * 60 + self.mm) - (other.hh * 60 + other.mm)
+        &totalMinutes += 24 * 60 // handle negative time wrap around
+        
+        let computed_hh = (totalMinutes / 60) % 24
+        let computed_mm = totalMinutes % 60
+        return Time(hh: computed_hh, mm: computed_mm)
+    }
+
+    public fun infix-= (_ other: Self) inout {
+        
+        var totalMinutes = (self.hh * 60 + self.mm) - (other.hh * 60 + other.mm)
+        &totalMinutes += 24 * 60 // handle negative time wrap around
+        
+        &self.hh = (totalMinutes / 60) % 24
+        &self.mm = totalMinutes % 60
+    }
+
+    public static fun zero() -> Self {
+        Time(hh: 0, mm: 0)
+    }
+ 
+ }
+
+// MARK: Train
+type Train {
+    public var name: String
+    public var start: Time
+    public var arrival: Time
+    
+    public memberwise init
+    
+    // // Delay the arrival time by delta, and return the new arrival time
+    // public fun delay(by delta: Time) -> Time {
+    //     let {
+    //         print("let")
+    //         (Train(name: name, start: start, arrival: arrival + delta), Time.zero())
+    //     }
+    //     inout {
+    //         //print("inout")
+    //         &arrival += delta
+    //         (Train(name: "sink", start: Time.zero(), arrival: Time.zero()), Time.zero)
+    //     }
+    //     sink {
+    //         print("sink")
+    //         &arrival += delta
+    //         (Train(name: "sink", start: Time.zero(), arrival: Time.zero()), Time.zero)
+    //     }
+    // }
+
+    public fun print() {
+        print("+ Train", terminator: " ")
+        print(name, terminator: ", ")
+        print("leaves at", terminator: " ")
+        start.print()
+        print(", arrives at", terminator: " ")
+        arrival.print()
+        print("")
+    }
+}
+
+// Not in the examples but needed to solve error
+// type 'Vector2' does not conform to trait 'Deinitializable'
+public conformance Train: Deinitializable {
+    public fun deinit() sink {
+        print("- Train ", terminator: name)
+        print(" has arrived")
+    }
+}
+
+public fun main() {
+    print("Our program begins")
+    var t = Time.zero()
+    t.print()
+    print("")
+
+    var train_1 = Train(name: "Choo-Choo Chortle", start: Time(hh: 10, mm: 30), arrival: Time(hh: 11, mm: 50))
+    train_1.print()
+
+    // According to the talks, train_1 should end its life here
+    var train_2 = Train(name: "Track Tickler", start: Time(hh: 10, mm: 30), arrival: Time(hh: 11, mm: 50))
+    train_2.print()
+
+    print("Our program ends")
+}

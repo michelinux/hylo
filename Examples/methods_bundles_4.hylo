@@ -1,0 +1,52 @@
+
+// MARK: Train
+type Train: Movable {
+  public var speed: Int
+
+  public memberwise init
+
+  public fun print() {
+    print("Train", terminator: " is running at a speed of ")
+    print(speed, terminator: "km/h\n")
+  }
+
+  public fun faster() {
+    let {
+        print("> let")
+        let new_speed = speed + 10
+        print(new_speed, terminator: "km/h\n")
+        return (Train(speed: new_speed))
+    }
+    sink {
+        print("> sink")
+        &speed += 10
+        print(speed, terminator: "km/h\n")
+        return self
+    }
+    inout {
+        print("> inout")
+        &speed += 10
+        print(speed, terminator: "km/h\n")
+    }
+
+  }
+}
+
+public conformance Train: Deinitializable {
+    public fun deinit() sink {
+        print("+ End of life after running at", terminator: " ")
+        print(speed, terminator: "km/h\n")
+    }
+}
+
+public fun main() {
+    var a = Train(speed: 50)
+    a.faster()
+    // print(a.speed)
+    
+    print("-------")
+
+    var b = Train(speed: 100)
+    &b.faster()
+    print(b.speed)
+}

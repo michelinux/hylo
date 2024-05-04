@@ -1,0 +1,113 @@
+
+// MARK: A
+type A {
+
+  public var name: String
+
+  public memberwise init
+
+  // Functional variants of a method bundle return instances of `{self: Self, Output}`, unless the
+  // declared return type of the bundle is `Void`, in which case they return instances of `Output`.
+  // In-place variants always return instances of `Output`.
+
+  public fun foo() {
+    let   { A(name: "- let") }
+    sink  { A(name: "- sink") }
+    inout { &name = "- inout" }
+  }
+
+  public fun bar() -> Int {
+    let   { 
+        print("> using let")
+        return (self: A(name: "let"), 1)
+    }
+    sink  { 
+        print("> using sink")
+        &name = "sink"
+        return (self: A(name: "sink"), 1)
+        
+        // return (self: A(name: "sink"), 1)  // I still don't completely understand why `sink` needs to return
+                                           // a new object
+    }
+    inout { 
+        print("> using inout")
+        &name = "inout"
+        return 1 
+    }
+  }
+}
+
+public conformance A: Deinitializable {
+    public fun deinit() sink {
+        print("+ End of life of ", terminator: name)
+        print("")
+    }
+}
+
+
+fun example_1() {
+    var a = A(name: "Example_1")
+
+    print(a.name)
+    print(a.foo().name)
+    print(a.name)
+    print("-------")
+}
+
+fun example_2() {
+    var a = A(name: "Example_2")
+
+    print(a.name)
+    &a.foo()
+    print(a.name)
+    print("-------")
+}
+
+fun example_3() {
+    var a = A(name: "Example_3")
+
+    // Was expecting it would use sink, but it didn't.
+    print(a.name)
+    print(a.foo().name)
+    // print(a.name)
+    print("-------")
+}
+
+fun example_4() {
+    var a = A(name: "Example_4")
+
+    print(a.name)
+    let number = a.bar()
+    print(a.name)
+    print("-------")
+}
+
+fun example_5() {
+    var a = A(name: "Example_5")
+
+    print(a.name)
+    let number = &a.bar()
+    print(a.name)
+    print("-------")
+}
+
+fun example_6() {
+    var a = A(name: "Example_6")
+
+    print(a.name)
+    let number = a.bar() // I am expecting sink, because a
+                         // is never used after
+    // print(a.name)
+    print("-------")
+}
+
+public fun main() {
+    // example_1()
+    // example_2()
+    // example_3()
+
+    // Using bar
+    example_4()
+    example_5()
+    example_6()
+}

@@ -1,0 +1,13 @@
+
+fun main() {
+    var fruits: any Collection where .Element == String
+    // fruits = if Bool.random() { 
+    //     Array(["mango", "pear"])
+    // } else { 
+    //     LinkedList(["mango", "pear"])
+    // }
+    // if let f = fruits.first {
+    //     print(f == "durian")
+    // }
+    // print(fruits[0])
+}
